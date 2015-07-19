@@ -1,4 +1,4 @@
--module(fs_server).
+-module(enotify_server).
 
 -behaviour(gen_server).
 
@@ -24,11 +24,11 @@
 start_link(Path, Events) ->
     case os:type() of
         {unix, darwin} ->
-            gen_server:start_link(?MODULE, [fsevents, Path, Events, self()], []);
+            gen_server:start_link(?MODULE, [enotify_fsevents, Path, Events, self()], []);
         {unix, linux} ->
-            gen_server:start_link(?MODULE, [inotifywait, Path, Events, self()], []);
+            gen_server:start_link(?MODULE, [enotify_inotifywait, Path, Events, self()], []);
         {win32, nt} ->
-            gen_server:start_link(?MODULE, [inotifywait_win32, Path, Events, self()], []);
+            gen_server:start_link(?MODULE, [enotify_inotifywait_win32, Path, Events, self()], []);
         _ ->
             {error, no_backend}
     end.

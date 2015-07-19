@@ -1,5 +1,5 @@
--module(fs).
--include_lib("kernel/include/file.hrl").
+-module(enotify).
+
 -export([subscribe/0
         ,subscribe/2
         ,find_executable/1]).
