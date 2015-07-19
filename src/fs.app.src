@@ -1,7 +1,6 @@
-{application, fs, 
- [{description, "VXZ FS Listener"},
-  {vsn, "0.9.1"},
+{application, fs,
+ [{description, "Filesystem listener"},
+  {vsn, "0.1.0"},
   {registered, []},
   {applications, [kernel,stdlib]},
-  {mod, { fs_app, []}},
   {env, []}]}.
