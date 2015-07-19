@@ -9,13 +9,17 @@ start_port(Path) ->
     Args = ["-c", "inotifywait $0 $@ & PID=$!; read a; kill $PID",
             "-m", "-e", "close_write", "-e", "moved_to", "-e", "create", "-e", "delete", "-r", Path1],
     erlang:open_port({spawn_executable, os:find_executable("sh")},
-                     [stream, exit_status, {line, 16384}, {args, Args}]).
+                     [stream, stderr_to_stdout, exit_status, {line, 16384}, {args, Args}]).
 
 line_to_event(Line, RE) ->
-    {match, [Dir, Flags1, DirEntry]} = re:run(Line, RE, [{capture, all_but_first, list}]),
-    Flags = [convert_flag(F) || F <- string:tokens(Flags1, ",")],
-    Path = Dir ++ DirEntry,
-    {Path, Flags}.
+    case re:run(Line, RE, [{capture, all_but_first, list}]) of
+        {match, [Dir, Flags1, DirEntry]} ->
+            Flags = [convert_flag(F) || F <- string:tokens(Flags1, ",")],
+            Path = Dir ++ DirEntry,
+            {Path, Flags};
+        _ ->
+            nomatch
+    end.
 
 line_parser() ->
     {ok, R} = re:compile("^(.*/) ([A-Z_,]+) (.*)$", [unicode]),

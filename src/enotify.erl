@@ -71,12 +71,16 @@ handle_info({_Port, {data, {eol, Line}}}, #state{backend=Backend
                                                 ,re=RE
                                                 ,events=ListenEvents
                                                 ,pid=Pid}=State) ->
-    {EventPath, Events} = Backend:line_to_event(Line, RE),
-    case sets:is_disjoint(ListenEvents, sets:from_list(Events)) of
-        true ->
-            {noreply, State};
-        false ->
-            Pid ! {EventPath, Events},
+    case Backend:line_to_event(Line, RE) of
+        {EventPath, Events} ->
+            case sets:is_disjoint(ListenEvents, sets:from_list(Events)) of
+                true ->
+                    {noreply, State};
+                false ->
+                    Pid ! {EventPath, Events},
+                    {noreply, State}
+            end;
+        _ ->
             {noreply, State}
     end;
 handle_info({_Port, {data, {noeol, Line}}}, State) ->
