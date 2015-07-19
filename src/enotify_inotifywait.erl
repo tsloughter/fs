@@ -6,9 +6,8 @@
 
 start_port(Path) ->
     Path1 = filename:absname(Path),
-    EventList = create_events([create, close, move, delete]),
     Args = ["-c", "inotifywait $0 $@ & PID=$!; read a; kill $PID",
-            "-m" | EventList ++ ["-r", Path1]],
+            "-m", "-e", "close_write", "-e", "moved_to", "-e", "create", "-e", "delete", "-r", Path1],
     erlang:open_port({spawn_executable, os:find_executable("sh")},
                      [stream, exit_status, {line, 16384}, {args, Args}]).
 
@@ -22,22 +21,10 @@ line_parser() ->
     {ok, R} = re:compile("^(.*/) ([A-Z_,]+) (.*)$", [unicode]),
     R.
 
-create_events(Events) ->
-    create_events(Events, []).
-
-create_events([], EventList) ->
-    EventList;
-create_events([H | T], EventList) ->
-    create_events(T, ["-e", event_string(H) | EventList]).
-
-event_string(create) -> "create";
-event_string(close) -> "close_write";
-event_string(move) -> "moved_to";
-event_string(delete) -> "delete".
-
 convert_flag("CREATE")      -> created;
 convert_flag("DELETE")      -> deleted;
 convert_flag("CLOSE_WRITE") -> modified;
 convert_flag("CLOSE")       -> closed;
 convert_flag("MOVED_TO")    -> moved;
+convert_flag("ISDIR") -> isdir;
 convert_flag(_)             -> undefined.

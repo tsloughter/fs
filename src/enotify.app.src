@@ -3,4 +3,9 @@
   {vsn, "0.1.0"},
   {registered, []},
   {applications, [kernel,stdlib]},
-  {env, []}]}.
+  {env, []},
+
+  {contributors,["Tristan Sloughter", "Namdak Tonpa", "Vladimir Kirillov", "Maxim Sokhatsky"]},
+  {licenses,["MIT"]},
+  {links,[{"Github","https://github.com/tsloughter/enotify"}]}
+ ]}.
