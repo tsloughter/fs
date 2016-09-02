@@ -1,1 +1,4 @@
-[].
+[{<<"inotify">>,
+  {git,"https://github.com/vans163/inotify",
+       {ref,"0f92cd3a6e411adaeb1541ed1433c17c5418f6d1"}},
+  0}].

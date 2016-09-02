@@ -46,7 +46,21 @@ start_link(Path, Events) ->
         {unix, darwin} ->
             gen_server:start_link(?MODULE, [enotify_fsevents, Path, Events, self()], []);
         {unix, linux} ->
-            gen_server:start_link(?MODULE, [enotify_inotifywait, Path, Events, self()], []);
+            Self = self(),
+            spawn_link(fun() ->
+                inotify_folder_watcher:start_link({[Path], self()}),
+
+                %ugly infinite loop but supports less than R17
+                G = fun(_G) ->
+                    receive
+                        {inotify, changed, ChangedFile} -> 
+                            Self ! {ChangedFile, [modified]};
+                            %io:format("Changed ~p \n", [ChangedFile]); 
+                        X -> pass
+                    end,
+                    _G(_G)
+                end, G(G)
+            end);
         {win32, nt} ->
             gen_server:start_link(?MODULE, [enotify_inotifywait_win32, Path, Events, self()], []);
         _ ->
