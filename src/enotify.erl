@@ -49,8 +49,6 @@ start_link(Path, Events) ->
             Self = self(),
             spawn_link(fun() ->
                 inotify_folder_watcher:start_link({[Path], self()}),
-                ValidExtensions = [<<".erl">>, <<".src">>, 
-                    <<".c">>, <<".cpp">>, <<".h">>, <<".hpp">>, <<".cc">>],
 
                 %ugly infinite loop but supports less than R17
                 G = fun(_G) ->
