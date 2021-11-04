@@ -6,8 +6,14 @@
 
 start_port(Path) ->
     Path1 = filename:absname(Path),
-    Args = ["-c", "inotifywait $0 $@ & PID=$!; read a; kill $PID",
-            "-m", "-e", "close_write", "-e", "moved_to", "-e", "create", "-e", "delete", "-r", Path1],
+    Args = case os:type() of
+               {unix, freebsd} ->
+                   ["-c", "inotifywait $0 $@ & PID=$!; read a; kill $PID", "--",
+                    "-m", "-e", "close_write", "-e", "moved_to", "-e", "create", "-e", "delete", "-r", Path1];
+               {unix, linux} ->
+                   ["-c", "inotifywait $0 $@ & PID=$!; read a; kill $PID",
+                    "-m", "-e", "close_write", "-e", "moved_to", "-e", "create", "-e", "delete", "-r", Path1]
+           end,
     erlang:open_port({spawn_executable, os:find_executable("sh")},
                      [stream, stderr_to_stdout, exit_status, {line, 16384}, {args, Args}]).
 
