@@ -45,6 +45,8 @@ start_link(Path, Events) ->
     case os:type() of
         {unix, darwin} ->
             gen_server:start_link(?MODULE, [enotify_fsevents, Path, Events, self()], []);
+        {unix, freebsd} ->
+            gen_server:start_link(?MODULE, [enotify_inotifywait, Path, Events, self()], []);
         {unix, linux} ->
             gen_server:start_link(?MODULE, [enotify_inotifywait, Path, Events, self()], []);
         {win32, nt} ->
